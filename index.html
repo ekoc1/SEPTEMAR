@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>WebAR Marker Test</title>
+    <title>SEPTEMAR WebAR</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
   </head>
@@ -11,17 +11,17 @@
       embedded
       arjs="sourceType: webcam; detectionMode: mono; debugUIEnabled: false;"
     >
-      <!-- Asset Yükleme -->
+      <!-- Model dosyasını yükle -->
       <a-assets>
-        <a-asset-item id="modelAsset" src="assets/model.glb"></a-asset-item>
+        <a-asset-item id="modelAsset" src="model.glb"></a-asset-item>
       </a-assets>
 
-      <!-- Marker Tanımı -->
+      <!-- Marker tanımı -->
       <a-marker
-        type="pattern"
-        url="assets/marker.patt"
-        emitevents="true"
         id="marker"
+        type="pattern"
+        url="marker.patt"
+        emitevents="true"
       >
         <a-entity
           id="model"
@@ -32,10 +32,10 @@
       </a-marker>
 
       <!-- Kamera -->
-      <a-camera position="0 0 0" look-controls-enabled="false"></a-camera>
+      <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- Marker Event Script -->
+    <!-- Marker olayı: Marker görülünce modeli göster, kaybolunca gizleme -->
     <script>
       const marker = document.querySelector("#marker");
       const model = document.querySelector("#model");
@@ -45,7 +45,7 @@
       });
 
       marker.addEventListener("markerLost", () => {
-        // Model gizlenmeyecek — sahnede kalacak
+        // Model sahnede kalacak, gizlenmeyecek
       });
     </script>
   </body>
