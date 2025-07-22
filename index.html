@@ -2,68 +2,58 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>AR.js Model Marker Pozisyon Kopyalama</title>
+  <title>AR.js Marker Konum Model Yerleşimi</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/2.2.1/aframe/build/aframe-ar.min.js"></script>
   <style>
-    body, html { margin: 0; overflow: hidden; width: 100%; height: 100%; background: #222; }
-    #ui {
-      position: fixed; top: 10px; left: 10px; z-index: 10;
-    }
-    button {
-      font-size: 16px; padding: 8px 16px;
-    }
+    body, html { margin: 0; overflow: hidden; width: 100%; height: 100%; }
   </style>
 </head>
 <body>
-  <div id="ui">
-    <button id="freezeBtn">Dondur</button>
-  </div>
 
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-    <a-assets>
-      <a-asset-item id="modelAsset" src="model.glb"></a-asset-item>
-    </a-assets>
+<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+  <a-assets>
+    <!-- GLB modelini burada tanımla -->
+    <a-asset-item id="modelAsset" src="model.glb"></a-asset-item>
+  </a-assets>
 
-    <!-- Marker -->
-    <a-marker id="marker" type="pattern" url="marker.patt"></a-marker>
+  <!-- Marker -->
+  <a-marker id="marker" type="pattern" url="marker.patt"></a-marker>
 
-    <!-- Model bağımsız entity -->
-    <a-entity id="model" gltf-model="#modelAsset" scale="2 2 2" position="0 0 0" visible="true"></a-entity>
+  <!-- Model (bağımsız) -->
+  <a-entity
+    id="model"
+    gltf-model="#modelAsset"
+    scale="2 2 2"
+    position="0 0 0"
+    visible="true"
+  ></a-entity>
 
-    <!-- Kamera -->
-    <a-entity camera look-controls position="0 1.6 3"></a-entity>
-  </a-scene>
+  <!-- Serbest hareketli kamera -->
+  <a-entity camera look-controls position="0 1.6 0"></a-entity>
+</a-scene>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const marker = document.querySelector("#marker");
-      const model = document.querySelector("#model");
-      const freezeBtn = document.getElementById("freezeBtn");
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const marker = document.querySelector("#marker");
+    const model = document.querySelector("#model");
+    let modelPositioned = false;
 
-      let trackingActive = true;
-
-      freezeBtn.addEventListener("click", () => {
-        trackingActive = false;
-        alert("Model pozisyonu sabitlendi, artık marker hareketlerini takip etmiyor.");
-      });
-
-      AFRAME.registerComponent("copy-marker-position", {
-        tick: function () {
-          if (!trackingActive) return;
-          if (marker.object3D.visible) {
-            // Markerın dünya pozisyonunu al
-            const markerWorldPos = new THREE.Vector3();
-            marker.object3D.getWorldPosition(markerWorldPos);
-
-            // Model pozisyonunu markerın pozisyonuna kopyala
-            this.el.object3D.position.copy(markerWorldPos);
-          }
-        }
-      });
-
-      model.setAttribute("copy-marker-position", "");
+    marker.addEventListener("markerFound", () => {
+      if (!modelPositioned) {
+        const markerWorldPos = new THREE.Vector3();
+        marker.object3D.getWorldPosition(markerWorldPos);
+        model.object3D.position.copy(markerWorldPos);
+        modelPositioned = true;
+        console.log("Model marker pozisyonuna yerleştirildi:", markerWorldPos);
+      }
     });
-  </script>
+
+    marker.addEventListener("markerLost", () => {
+      console.log("Marker kayboldu, model sahnede kalmaya devam ediyor.");
+    });
+  });
+</script>
+
 </body>
 </html>
