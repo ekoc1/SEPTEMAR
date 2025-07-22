@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>WebAR Marker Test</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; detectionMode: mono; debugUIEnabled: false;"
+    >
+      <!-- Asset Yükleme -->
+      <a-assets>
+        <a-asset-item id="modelAsset" src="assets/model.glb"></a-asset-item>
+      </a-assets>
+
+      <!-- Marker Tanımı -->
+      <a-marker
+        type="pattern"
+        url="assets/marker.patt"
+        emitevents="true"
+        id="marker"
+      >
+        <a-entity
+          id="model"
+          gltf-model="#modelAsset"
+          scale="0.5 0.5 0.5"
+          visible="false"
+        ></a-entity>
+      </a-marker>
+
+      <!-- Kamera -->
+      <a-camera position="0 0 0" look-controls-enabled="false"></a-camera>
+    </a-scene>
+
+    <!-- Marker Event Script -->
+    <script>
+      const marker = document.querySelector("#marker");
+      const model = document.querySelector("#model");
+
+      marker.addEventListener("markerFound", () => {
+        model.setAttribute("visible", true);
+      });
+
+      marker.addEventListener("markerLost", () => {
+        // Model gizlenmeyecek — sahnede kalacak
+      });
+    </script>
+  </body>
+</html>
