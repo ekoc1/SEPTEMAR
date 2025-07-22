@@ -1,62 +1,63 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <title>AR.js Marker Pozisyonuna Model Yerleştir</title>
-  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/2.2.1/aframe/build/aframe-ar.min.js"></script>
-  <style>
-    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-  </style>
-</head>
-<body>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SEPTEMAR WebAR</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; detectionMode: mono; debugUIEnabled: false;"
+    >
+      <!-- Işıklandırmalar -->
+      <a-light type="ambient" color="#ffffff" intensity="0.7"></a-light>
+      <a-light
+        type="directional"
+        color="#ffffff"
+        intensity="0.5"
+        position="1 1 0"
+        cast-shadow="true"
+      ></a-light>
 
-<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-  <a-assets>
-    <!-- Model dosyanı buraya koy -->
-    <a-asset-item id="modelAsset" src="model.glb"></a-asset-item>
-  </a-assets>
+      <!-- Model dosyasını yükle -->
+      <a-assets>
+        <a-asset-item id="modelAsset" src="model.glb"></a-asset-item>
+      </a-assets>
 
-  <!-- Marker (görsel olarak sahnede görünmeyecek) -->
-  <a-marker id="marker" type="pattern" url="marker.patt"></a-marker>
+      <!-- Marker tanımı -->
+      <a-marker
+        id="marker"
+        type="pattern"
+        url="marker.patt"
+        emitevents="true"
+      >
+        <a-entity
+          id="model"
+          gltf-model="#modelAsset"
+          scale="2 2 2"
+          visible="false"
+          shadow="cast: true; receive: true"
+        ></a-entity>
+      </a-marker>
 
-  <!-- Model, marker'a bağlı değil -->
-  <a-entity
-    id="model"
-    gltf-model="#modelAsset"
-    position="0 0 0"
-    scale="2 2 2"
-    visible="true"
-  ></a-entity>
+      <!-- Kamera -->
+      <a-entity camera></a-entity>
+    </a-scene>
 
-  <!-- Kamera serbest dolaşabiliyor -->
-  <a-entity camera position="0 1.6 0" look-controls></a-entity>
-</a-scene>
+    <!-- Marker olayı: Marker görülünce modeli göster, kaybolunca gizleme -->
+    <script>
+      const marker = document.querySelector("#marker");
+      const model = document.querySelector("#model");
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const marker = document.querySelector("#marker");
-    const model = document.querySelector("#model");
-    let modelPlaced = false;
+      marker.addEventListener("markerFound", () => {
+        model.setAttribute("visible", true);
+      });
 
-    marker.addEventListener("markerFound", () => {
-      if (!modelPlaced) {
-        // Pozisyonu birkaç ms sonra almak daha stabil sonuç verir
-        setTimeout(() => {
-          const markerWorldPos = new THREE.Vector3();
-          marker.object3D.getWorldPosition(markerWorldPos);
-          model.object3D.position.copy(markerWorldPos);
-          modelPlaced = true;
-          console.log("Model marker pozisyonuna yerleştirildi:", markerWorldPos);
-        }, 100);
-      }
-    });
-
-    marker.addEventListener("markerLost", () => {
-      console.log("Marker kayboldu. Model sabit kaldı.");
-    });
-  });
-</script>
-
-</body>
+      marker.addEventListener("markerLost", () => {
+        // Model sahnede kalacak, gizlenmeyecek
+      });
+    </script>
+  </body>
 </html>
